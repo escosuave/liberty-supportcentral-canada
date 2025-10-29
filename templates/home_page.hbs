@@ -13,6 +13,36 @@
 
 
 
+<section class="homepage-announcements">
+  <div id="announcements" aria-live="polite">
+    <!-- Fallback/initial content in case fetch fails -->
+  </div>
+</section>
+
+<script>
+(function () {
+  // Canada-specific announcements
+  const SRC = "https://raw.githubusercontent.com/escosuave/liberty-supportcentral-announcements/refs/heads/main/announcements-ca.html";
+  const target = document.getElementById("announcements");
+
+  // Cache bust on each publish/view, but keep CDN-friendly:
+  const url = SRC + "?v=" + (window.theme && window.theme.settings && window.theme.settings.theme_version ? window.theme.settings.theme_version : Date.now());
+
+  fetch(url, { cache: "no-store" })
+    .then(r => r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status)))
+    .then(html => {
+      // Because you control the source file, innerHTML is acceptable.
+      // If you ever allow 3rd-party edits, sanitize here before injecting.
+      target.innerHTML = html.trim();
+    })
+    .catch(err => {
+      console.error("Announcements load failed:", err);
+      // Optional: keep the fallback or show a small message
+      // target.innerHTML = "<p>Announcements are temporarily unavailable.</p>";
+    });
+})();
+</script>
+
 <div class="container">
      
 
