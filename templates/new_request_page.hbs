@@ -22,3 +22,45 @@
     {{request_form wysiwyg=true}}
   </div>
 </div>
+
+<script>
+// Conditional form prefilling for Marketing ticket form
+document.addEventListener('DOMContentLoaded', function() {
+  const formId = new URLSearchParams(window.location.search).get('ticket_form_id');
+  
+  if (formId === '1500001438362') { // Marketing form only
+    const urlParams = new URLSearchParams(window.location.search);
+    const fieldValue = urlParams.get('prefill_marketing_buyups');
+    
+    if (fieldValue) {
+      // Retry mechanism: Zendesk forms may render asynchronously
+      const dropdownSelector = '#request_custom_fields_1500007532382';
+      let attempts = 0;
+      const maxAttempts = 10;
+      const retryInterval = 200; // ms
+      
+      function setDropdownValue() {
+        const dropdown = document.querySelector(dropdownSelector);
+        if (dropdown) {
+          dropdown.value = fieldValue;
+          // Trigger change event to ensure Zendesk recognizes the change
+          dropdown.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
+        }
+        return false;
+      }
+      
+      // Try immediately
+      if (!setDropdownValue()) {
+        // Retry with interval if field not found
+        const retryTimer = setInterval(function() {
+          attempts++;
+          if (setDropdownValue() || attempts >= maxAttempts) {
+            clearInterval(retryTimer);
+          }
+        }, retryInterval);
+      }
+    }
+  }
+});
+</script>
